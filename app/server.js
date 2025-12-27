@@ -67,7 +67,7 @@ app.post('/api/messages', async (req, res) => {
 app.get('/api/messages', protect, authorize("admin"), async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // current page
-    const limit = 5; // messages per page
+    const limit = 8; // messages per page
     const skip = (page - 1) * limit;
 
     const totalMessages = await Message.countDocuments();
