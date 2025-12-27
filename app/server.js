@@ -64,15 +64,30 @@ app.post('/api/messages', async (req, res) => {
   }
 });
 
-app.get('/api/messages' ,  protect,
-  authorize("admin"), async (req, res) => {
+app.get('/api/messages', protect, authorize("admin"), async (req, res) => {
   try {
-    const messages = await Message.find().sort({ createdAt: -1 });
-    res.status(200).json(messages);
+    const page = parseInt(req.query.page) || 1; // current page
+    const limit = 5; // messages per page
+    const skip = (page - 1) * limit;
+
+    const totalMessages = await Message.countDocuments();
+
+    const messages = await Message.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      currentPage: page,
+      totalPages: Math.ceil(totalMessages / limit),
+      totalMessages,
+      messages,
+    });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch messages' });
   }
 });
+
 
 
 connectDB().then(() => {
